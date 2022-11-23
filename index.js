@@ -1,46 +1,62 @@
-class Currency {
-  constructor(label, price) {
-    this.label = label
-    this.price = price
-  }
-}
+const currency = [
+	{ name: 'ONE HUNDRED', price: 100},
+	{ name: 'TWENTY', price: 20},
+	{ name: 'TEN', price: 10},
+	{ name: 'FIVE', price: 5},
+	{ name: 'ONE', price: 1},
+	{ name: 'QUARTER', price: 0.25},
+	{ name: 'DIME', price: 0.1},
+	{ name: 'NICKEL', price: 0.05},
+	{ name: 'PENNY', price: 0.01}
+];
 
-const currencyUnitHandler = (price) => {
-    if (price > 100) {
-      return new Currency('ONE HUNDRED', 100)
-    } else if (price > 20) {
-      return new Currency('TWENTY', 20)
-    } else if (price > 10) {
-      return new Currency('TEN', 10)
-    } else if (price > 5) {
-      return new Currency('FIVE', 5)
-    } else if (price > 1) {
-      return new Currency('ONE', 1)
-    } else if (price > 0.25) {
-      return new Currency('QUARTER', 0.25)
-    } else if (price > 0.1) {
-      return new Currency('DIME', 0.1)
-    } else if (price > 0.05) {
-      return new Currency('NICKEL', 0.05)
-    } else {
-      return new Currency('PENNY', 0.01)
-    }
-}
 
 function checkCashRegister(price, cash, cid) {
-  let changeValue = cash - price;
-  const charge = []
+  const output = {status: null, change: []}
+  let change  = cash - price;
 
-  while (changeValue !=0 ) {
-    const { label, price} = currencyUnitHandler(changeValue)
-    const divisorInt = parseInt(changeValue / price)
-    const valueWithCurrency = divisorInt * price
-    changeValue =  changeValue - valueWithCurrency
-    charge.push(label, valueWithCurrency)
+  const register = cid.reduce(function(acc, curr) {
+    acc.total += curr[1];
+    acc[curr[0]] = curr[1];
+
+    return acc;
+  }, {total: 0});
+
+  if(register.total === change) {
+    output.status = 'CLOSED';
+    output.change = cid;
+    
+    return output;
   }
-  console.log(charge)
 
-  return charge;
+  if(register.total < change) {
+    output.status = 'INSUFFICIENT_FUNDS';
+    return output;
+  }
+
+  while (change !== 0 ) {
+    /*const { label, price} = currencyUnitHandler(change, cid)
+    const divisorInt = parseInt(change  / price)
+    const valueWithCurrency = divisorInt * price
+    change  =  change - valueWithCurrency
+    output.change.push(label, valueWithCurrency)*/
+
+    for (let i = 0; i < currency.length; i++) {
+      let currencyName = currency[i].name;
+      let currencyPrice = currency[i].price;
+
+      if (currencyPrice < change) {
+        const divisor = parseInt(change /currencyPrice)
+        const valueToSub = divisor*currencyPrice
+        console.log(valueToSub)
+        change = change - valueToSub
+      }
+    }
+  }
+
+  console.log(output)
+
+  return output;
 }
 
-checkCashRegister(3.26, 100, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], ["QUARTER", 4.25], ["ONE", 90], ["FIVE", 55], ["TEN", 20], ["TWENTY", 60], ["ONE HUNDRED", 100]]);
+checkCashRegister(45, 100, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], ["QUARTER", 4.25], ["ONE", 90], ["FIVE", 55], ["TEN", 20], ["TWENTY", 60], ["ONE HUNDRED", 100]]);
