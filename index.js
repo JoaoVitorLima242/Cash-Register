@@ -34,29 +34,37 @@ function checkCashRegister(price, cash, cid) {
     return output;
   }
 
-  while (change !== 0 ) {
-    /*const { label, price} = currencyUnitHandler(change, cid)
-    const divisorInt = parseInt(change  / price)
-    const valueWithCurrency = divisorInt * price
-    change  =  change - valueWithCurrency
-    output.change.push(label, valueWithCurrency)*/
 
-    for (let i = 0; i < currency.length; i++) {
-      let currencyName = currency[i].name;
-      let currencyPrice = currency[i].price;
+  const changeArr = currency.reduce(function(acc, curr) {
+    let value = 0;
 
-      if (currencyPrice < change) {
-        const divisor = parseInt(change /currencyPrice)
-        const valueToSub = divisor*currencyPrice
-        console.log(valueToSub)
-        change = change - valueToSub
-      }
+    while(register[curr.name] > 0 && change >= curr.price) {
+      change -= curr.price;
+      register[curr.name] -= curr.price;
+      value += curr.price;
+      change = Math.round(change * 100) / 100;
     }
+
+    if(value > 0) {
+      acc.push([ curr.name, value ]);
+    }
+
+    return acc;
+  }, []);
+
+
+  if(changeArr.length < 1 || change > 0) {
+    output.status = 'INSUFFICIENT_FUNDS';
+
+    return output;
   }
 
-  console.log(output)
+  output.status = 'OPEN';
+  output.change = changeArr;
+
+  console.log(changeArr)
 
   return output;
 }
 
-checkCashRegister(45, 100, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], ["QUARTER", 4.25], ["ONE", 90], ["FIVE", 55], ["TEN", 20], ["TWENTY", 60], ["ONE HUNDRED", 100]]);
+checkCashRegister(3.26, 100, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], ["QUARTER", 4.25], ["ONE", 90], ["FIVE", 55], ["TEN", 20], ["TWENTY", 60], ["ONE HUNDRED", 100]])
